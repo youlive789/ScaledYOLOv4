@@ -32,15 +32,17 @@ def test(data,
          dataloader=None,
          save_dir='',
          merge=False,
-         save_txt=False):
+         save_txt=False,
+         device = '0',
+         task = 'val'
+         ):
     # Initialize/load model and set device
     training = model is not None
     if training:  # called by train.py
         device = next(model.parameters()).device  # get model device
 
     else:  # called directly
-        device = select_device(opt.device, batch_size=batch_size)
-        merge, save_txt = opt.merge, opt.save_txt  # use Merge NMS, save *.txt labels
+        device = select_device(device, batch_size=batch_size)
         if save_txt:
             out = Path('inference/output')
             if os.path.exists(out):
@@ -72,8 +74,8 @@ def test(data,
     if not training:
         img = torch.zeros((1, 3, imgsz, imgsz), device=device)  # init img
         _ = model(img.half() if half else img) if device.type != 'cpu' else None  # run once
-        path = data['test'] if opt.task == 'test' else data['val']  # path to val/test images
-        dataloader = create_dataloader(path, imgsz, batch_size, model.stride.max(), opt,
+        path = data['test'] if task == 'test' else data['val']  # path to val/test images
+        dataloader = create_dataloader(path, imgsz, batch_size, model.stride.max(), 
                                        hyp=None, augment=False, cache=False, pad=0.5, rect=True)[0]
 
     seen = 0
